@@ -1,0 +1,89 @@
+# frozen_string_literal: true
+
+require 'spec_helper_acceptance'
+
+# java::adoptium and java::sap install tarballs side by side with the
+# system java. Both defines support RedHat and Debian on x86_64 only.
+describe 'multiple java versions side by side' do
+  before(:each) do
+    skip("tarball installs are not supported on #{os_family}/#{os_architecture}") unless (redhat? || debian?) && x86_64?
+  end
+
+  context 'with java::adoptium' do
+    let(:manifest) do
+      <<~MANIFEST
+        java::adoptium { 'temurin-17':
+          version_major => '17',
+          version_minor => '0',
+          version_patch => '1',
+          version_build => '12',
+        }
+        java::adoptium { 'temurin-21':
+          version_major  => '21',
+          version_minor  => '0',
+          version_patch  => '4',
+          version_build  => '7',
+          manage_symlink => true,
+          symlink_name   => 'temurin-21',
+        }
+      MANIFEST
+    end
+
+    it_behaves_like 'an idempotent manifest'
+
+    it_behaves_like 'a working java binary' do
+      let(:java_bin) { "#{archive_basedir}/jdk-17.0.1+12/bin/java" }
+      let(:expected_java_version) { %r{\A17\.0\.1\z} }
+    end
+
+    it_behaves_like 'a working java binary' do
+      let(:java_bin) { "#{archive_basedir}/jdk-21.0.4+7/bin/java" }
+      let(:expected_java_version) { %r{\A21\.0\.4\z} }
+    end
+
+    context 'with manage_symlink => true' do
+      it 'creates the requested symlink' do
+        expect(file("#{archive_basedir}/temurin-21")).to be_linked_to("#{archive_basedir}/jdk-21.0.4+7")
+      end
+    end
+  end
+
+  context 'with java::sap' do
+    let(:manifest) do
+      <<~MANIFEST
+        java::sap { 'sapmachine-jdk-17':
+          version      => '17',
+          version_full => '17.0.12',
+          java         => 'jdk',
+        }
+        java::sap { 'sapmachine-jre-17':
+          version      => '17',
+          version_full => '17.0.12',
+          java         => 'jre',
+        }
+      MANIFEST
+    end
+    let(:expected_java_version) { %r{\A17\.0\.12\z} }
+
+    it_behaves_like 'an idempotent manifest'
+
+    it_behaves_like 'a java development kit' do
+      let(:javac_bin) { "#{archive_basedir}/sapmachine-jdk-17.0.12/bin/javac" }
+    end
+
+    it_behaves_like 'a working java binary' do
+      let(:java_bin) { "#{archive_basedir}/sapmachine-jre-17.0.12/bin/java" }
+    end
+  end
+
+  context 'with the system java' do
+    before(:all) do
+      apply_manifest(java_class_manifest, catch_failures: true)
+    end
+
+    it_behaves_like 'a working java binary' do
+      let(:java_bin) { 'java' }
+      let(:expected_java_version) { java_version_pattern(default_java_major_version) }
+    end
+  end
+end

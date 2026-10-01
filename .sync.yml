@@ -1,4 +1,14 @@
 ---
+".gitignore":
+  paths:
+    - "/spec/fixtures/litmus_inventory*.yaml"
+    - "/.bolt/"
+    - "/.litmus/"
+".pdkignore":
+  paths:
+    - "/spec/fixtures/litmus_inventory*.yaml"
+    - "/.bolt/"
+    - "/.litmus/"
 ".gitlab-ci.yml":
   delete: true
 appveyor.yml:

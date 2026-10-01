@@ -297,6 +297,20 @@ This codebase is licensed under the Apache2.0 licensing, however due to the natu
 
 Puppet modules on the Puppet Forge are open projects, and community contributions are essential for keeping them great. To contribute to Puppet projects, see our [module contribution guide.](https://docs.puppetlabs.com/forge/contributing.html)
 
+### Acceptance tests
+
+The acceptance tests use [Puppet Litmus](https://puppetlabs.github.io/litmus/). To run them locally with docker:
+
+```bash
+pdk bundle exec rake 'litmus:provision_list[default]'
+pdk bundle exec rake 'litmus:install_agent[puppet8]'
+pdk bundle exec rake litmus:install_module
+pdk bundle exec rake litmus:acceptance:parallel
+pdk bundle exec rake litmus:tear_down
+```
+
+See [spec/acceptance/README.md](spec/acceptance/README.md) for the available targets, the CI setup and how to write new tests.
+
 ## Contributors
 
 The list of contributors can be found at [https://github.com/puppetlabs/puppetlabs-java/graphs/contributors](https://github.com/puppetlabs/puppetlabs-java/graphs/contributors).
