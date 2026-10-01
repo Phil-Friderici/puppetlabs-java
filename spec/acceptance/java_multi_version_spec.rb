@@ -35,13 +35,13 @@ describe 'multiple java versions side by side' do
     }
   MANIFEST
 
-  before(:each) do
-    skip("tarball installs are not supported on #{os_family}/#{os_architecture}") unless archive_install_supported?
-  end
-
   context 'with java::adoptium' do
     before(:all) do
       apply_manifest(adoptium_manifest, catch_failures: true) if archive_install_supported?
+    end
+
+    before(:each) do
+      skip("tarball installs are not supported on #{os_family}/#{os_architecture}") unless archive_install_supported?
     end
 
     it_behaves_like 'an idempotent manifest' do
@@ -66,6 +66,10 @@ describe 'multiple java versions side by side' do
   context 'with java::sap' do
     before(:all) do
       apply_manifest(sap_manifest, catch_failures: true) if archive_install_supported?
+    end
+
+    before(:each) do
+      skip("tarball installs are not supported on #{os_family}/#{os_architecture}") unless archive_install_supported?
     end
 
     let(:expected_java_version) { %r{\A17\.0\.12\z} }
