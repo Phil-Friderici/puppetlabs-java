@@ -3,6 +3,10 @@
 require 'spec_helper_acceptance'
 
 describe 'java class with default parameters' do
+  before(:all) do
+    apply_manifest(java_class_manifest, catch_failures: true)
+  end
+
   let(:expected_java_version) { java_version_pattern(default_java_major_version) }
 
   it_behaves_like 'an idempotent manifest' do

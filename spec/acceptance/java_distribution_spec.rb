@@ -6,6 +6,10 @@ describe 'java class distribution variants' do
   let(:expected_java_version) { java_version_pattern(default_java_major_version) }
 
   context 'with distribution => jre' do
+    before(:all) do
+      apply_manifest(java_class_manifest(distribution: 'jre'), catch_failures: true)
+    end
+
     it_behaves_like 'an idempotent manifest' do
       let(:manifest) { java_class_manifest(distribution: 'jre') }
     end
@@ -20,6 +24,10 @@ describe 'java class distribution variants' do
   end
 
   context 'with distribution => jdk' do
+    before(:all) do
+      apply_manifest(java_class_manifest(distribution: 'jdk'), catch_failures: true)
+    end
+
     it_behaves_like 'an idempotent manifest' do
       let(:manifest) { java_class_manifest(distribution: 'jdk') }
     end

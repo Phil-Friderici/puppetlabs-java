@@ -24,9 +24,12 @@ module JavaAcceptanceHelpers
     LitmusHelper.instance.run_shell(command, opts)
   end
 
-  # Prepare the target for package installations (refresh stale package indexes).
+  # Prepare the target for package installations (refresh stale package indexes) and make sure
+  # curl is present: puppet/archive (used by java::adoptium and java::sap) falls back to its wget
+  # provider in minimal containers, which mangles URLs containing '+' (e.g. Temurin downloads).
   def prepare_target
     target_shell('if command -v apt-get >/dev/null 2>&1; then apt-get update -qq; fi', expect_failures: true)
+    LitmusHelper.instance.apply_manifest("package { 'curl': ensure => installed }", catch_failures: true)
   end
 
   # The structured `os` fact of the target.
@@ -92,7 +95,7 @@ module JavaAcceptanceHelpers
 
   # Debian architecture name as used in the OpenJDK alternative names.
   def debian_java_architecture
-    { 'aarch64' => 'arm64', 'armv7l' => 'armhf' }.fetch(os_architecture, os_architecture)
+    { 'x86_64' => 'amd64', 'aarch64' => 'arm64', 'armv7l' => 'armhf' }.fetch(os_architecture, os_architecture)
   end
 
   # Name of the Debian java alternative managed by the module.
@@ -115,6 +118,11 @@ module JavaAcceptanceHelpers
   # Path of the java binary the Debian alternative points to.
   def java_alternative_path
     "#{java_home}bin/java"
+  end
+
+  # java::adoptium and java::sap only support RedHat and Debian on x86_64.
+  def archive_install_supported?
+    (redhat? || debian?) && x86_64?
   end
 
   # Default base directory of java::adoptium and java::sap installations.

@@ -81,7 +81,7 @@ PUPPET_FORGE_TOKEN=<token> pdk bundle exec rake 'litmus:install_agent[puppetcore
 [`.github/workflows/litmus.yml`](../../.github/workflows/litmus.yml) runs the same steps for every
 pull request against `main` (and on demand via *workflow_dispatch*):
 
-* the `docker` job runs one matrix entry per docker image (Ubuntu 20.04/22.04, Debian 11, CentOS 7/8);
+* the `docker` job runs one matrix entry per docker image (Ubuntu 20.04/22.04, Debian 11, CentOS 7, CentOS Stream 8);
   the end-of-life CentOS releases are allowed to fail,
 * the `cloud` job provisions SLES 15 through the Puppet provision service (only in the `puppetlabs` organisation).
 
