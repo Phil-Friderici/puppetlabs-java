@@ -1,63 +1,83 @@
 ---
+# Litmus provisioning sets for puppetlabs-java.
+#
+# Provision a set with:
+#   pdk bundle exec rake 'litmus:provision_list[<key>]'
+# or provision, install the agent and the module in one go:
+#   pdk bundle exec rake 'litmus:provision_install[<key>,puppet8]'
+#
+# See spec/acceptance/README.md for the full workflow.
+
+# Fast single-container smoke test.
 default:
   provisioner: docker
   images:
-  - litmusimage/debian:8
-vagrant:
-  provisioner: vagrant
-  images:
-  - centos/7
-  - generic/ubuntu1804
-docker_deb:
+  - litmusimage/ubuntu:22.04
+
+# All targets that can be run locally with docker (CI matrix, see .github/workflows/litmus.yml).
+docker:
   provisioner: docker
   images:
-  - litmusimage/debian:9
-  - litmusimage/debian:10
-docker_ub_6:
-  provisioner: docker
-  images:
-  - litmusimage/ubuntu:18.04
   - litmusimage/ubuntu:20.04
+  - litmusimage/ubuntu:22.04
+  - litmusimage/debian:11
+  - litmusimage/centos:7
+  - litmusimage/centos:stream8
+
+docker_debian:
+  provisioner: docker
+  images:
+  - litmusimage/debian:11
+
+docker_ubuntu:
+  provisioner: docker
+  images:
+  - litmusimage/ubuntu:20.04
+  - litmusimage/ubuntu:22.04
+
 docker_el7:
   provisioner: docker
   images:
   - litmusimage/centos:7
-  - litmusimage/oraclelinux:7
-  - litmusimage/scientificlinux:7
+
 docker_el8:
   provisioner: docker
   images:
-  - litmusimage/centos:8
-release_checks_6:
-  provisioner: abs
+  - litmusimage/centos:stream8
+
+# Additional RedHat derivatives listed in metadata.json.
+docker_el_extended:
+  provisioner: docker
   images:
-  - redhat-6-x86_64
-  - redhat-7-x86_64
-  - redhat-8-x86_64
-  - centos-6-x86_64
-  - centos-7-x86_64
-  - centos-8-x86_64
-  - oracle-6-x86_64
-  - oracle-7-x86_64
-  - scientific-6-x86_64
-  - scientific-7-x86_64
-  - debian-9-x86_64
-  - debian-10-x86_64
-  - ubuntu-1804-x86_64
-  - ubuntu-2004-x86_64
-  - sles-12-x86_64
-  - sles-15-x86_64
-release_checks_7:
-  provisioner: abs
+  - litmusimage/rockylinux:8
+  - litmusimage/almalinux:8
+
+# SLES has no public litmus docker image, it is provisioned as a cloud VM.
+# Requires access to the Puppet provision service (GitHub Actions in the puppetlabs org).
+sles:
+  provisioner: provision_service
   images:
-  - redhat-7-x86_64
-  - redhat-8-x86_64
-  - centos-7-x86_64
-  - centos-8-x86_64
-  - oracle-7-x86_64
-  - debian-9-x86_64
-  - debian-10-x86_64
-  - ubuntu-1804-x86_64
-  - ubuntu-2004-x86_64
-  - sles-12-x86_64
-  - sles-15-x86_64
+  - sles-15
+
+# Local VMs, for platforms where a container is not representative enough.
+vagrant:
+  provisioner: vagrant
+  images:
+  - generic/ubuntu2004
+  - generic/ubuntu2204
+  - generic/debian11
+  - generic/centos7
+  - generic/centos8s
+
+# Full release check on cloud VMs (Puppet provision service).
+release_checks:
+  provisioner: provision_service
+  images:
+  - centos-7
+  - rhel-8
+  - rhel-9
+  - debian-11
+  - debian-12
+  - ubuntu-2004-lts
+  - ubuntu-2204-lts
+  - sles-15

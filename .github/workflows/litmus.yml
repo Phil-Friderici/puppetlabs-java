@@ -1,0 +1,136 @@
+name: "litmus"
+
+# Litmus acceptance tests for the targets defined in provision.yaml.
+# See spec/acceptance/README.md for how to run the same steps locally.
+
+on:
+  pull_request:
+    branches:
+      - "main"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Optional: with a Puppet Forge token the puppetcore gems and agents are used.
+  PUPPET_FORGE_TOKEN: ${{ secrets.PUPPET_FORGE_TOKEN }}
+
+jobs:
+  docker:
+    name: "${{ matrix.platform.name }}"
+    runs-on: "ubuntu-24.04"
+    # CentOS 7 and CentOS Stream 8 are end of life, their failures do not fail the workflow.
+    continue-on-error: ${{ matrix.platform.experimental }}
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - { name: "Ubuntu 20.04", image: "litmusimage/ubuntu:20.04", experimental: false }
+          - { name: "Ubuntu 22.04", image: "litmusimage/ubuntu:22.04", experimental: false }
+          - { name: "Debian 11", image: "litmusimage/debian:11", experimental: false }
+          - { name: "CentOS 7", image: "litmusimage/centos:7", experimental: true }
+          - { name: "CentOS Stream 8", image: "litmusimage/centos:stream8", experimental: true }
+    env:
+      PROVISIONER: "docker"
+      IMAGE: ${{ matrix.platform.image }}
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v4
+
+      - name: "Install system dependencies"
+        # bolt 4.x (puppet_litmus 2.x) builds the patron gem which needs the libcurl headers
+        run: sudo apt-get update && sudo apt-get install -y libcurl4-openssl-dev
+
+      - name: "Setup ruby"
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.2"
+          bundler-cache: true
+
+      - name: "Select puppet collection"
+        run: |
+          if [ -n "${PUPPET_FORGE_TOKEN}" ]; then
+            echo "COLLECTION=puppetcore8" >> "${GITHUB_ENV}"
+          else
+            echo "COLLECTION=puppet8" >> "${GITHUB_ENV}"
+          fi
+
+      - name: "Provision ${{ matrix.platform.name }}"
+        run: bundle exec rake "litmus:provision[${PROVISIONER},${IMAGE}]"
+
+      - name: "Install puppet agent"
+        run: bundle exec rake "litmus:install_agent[${COLLECTION}]"
+
+      - name: "Install module"
+        run: bundle exec rake litmus:install_module
+
+      - name: "Run acceptance tests"
+        run: bundle exec rake litmus:acceptance:parallel
+
+      - name: "Remove test environment"
+        if: always()
+        continue-on-error: true
+        run: |
+          if [ -f spec/fixtures/litmus_inventory.yaml ]; then
+            bundle exec rake litmus:tear_down
+          fi
+
+  cloud:
+    name: "${{ matrix.platform.name }}"
+    # SLES has no public docker image. It is provisioned as a VM through the
+    # Puppet provision service, which is only available to the puppetlabs organisation.
+    if: github.repository_owner == 'puppetlabs'
+    runs-on: "ubuntu-24.04"
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - { name: "SLES 15", image: "sles-15" }
+    env:
+      PROVISIONER: "provision_service"
+      IMAGE: ${{ matrix.platform.image }}
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v4
+
+      - name: "Install system dependencies"
+        run: sudo apt-get update && sudo apt-get install -y libcurl4-openssl-dev
+
+      - name: "Setup ruby"
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.2"
+          bundler-cache: true
+
+      - name: "Select puppet collection"
+        run: |
+          if [ -n "${PUPPET_FORGE_TOKEN}" ]; then
+            echo "COLLECTION=puppetcore8" >> "${GITHUB_ENV}"
+          else
+            echo "COLLECTION=puppet8" >> "${GITHUB_ENV}"
+          fi
+
+      - name: "Provision ${{ matrix.platform.name }}"
+        run: bundle exec rake "litmus:provision[${PROVISIONER},${IMAGE}]"
+
+      - name: "Install puppet agent"
+        run: bundle exec rake "litmus:install_agent[${COLLECTION}]"
+
+      - name: "Install module"
+        run: bundle exec rake litmus:install_module
+
+      - name: "Run acceptance tests"
+        run: bundle exec rake litmus:acceptance:parallel
+
+      - name: "Remove test environment"
+        if: always()
+        continue-on-error: true
+        run: |
+          if [ -f spec/fixtures/litmus_inventory.yaml ]; then
+            bundle exec rake litmus:tear_down
+          fi

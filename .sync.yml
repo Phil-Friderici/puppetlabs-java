@@ -11,3 +11,13 @@
 spec/spec_helper.rb:
   mock_with: ":rspec"
   coverage_report: true
+.gitignore
+  paths:
+    - "/spec/fixtures/litmus_inventory*.yaml"
+    - "/.bolt/"
+    - "/.litmus/"
+.pdkignore:
+  paths:
+    - "/spec/fixtures/litmus_inventory*.yaml"
+    - "/.bolt/"
+    - "/.litmus/"
