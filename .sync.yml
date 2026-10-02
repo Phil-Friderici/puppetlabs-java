@@ -1,34 +1,23 @@
+# This file can be used to customize the files managed by PDK.
+#
+# See https://github.com/puppetlabs/pdk-templates/blob/main/README.md
+# for more information.
+#
+# See https://github.com/puppetlabs/pdk-templates/blob/main/config_defaults.yml
+# for the default values.
 ---
-".gitignore":
-  paths:
-    - "/spec/fixtures/litmus_inventory*.yaml"
-    - "/.bolt/"
-    - "/.litmus/"
-".pdkignore":
-  paths:
-    - "/spec/fixtures/litmus_inventory*.yaml"
-    - "/.bolt/"
-    - "/.litmus/"
-".gitlab-ci.yml":
-  delete: true
-appveyor.yml:
-  delete: true
 .rubocop.yml:
   include_todos: true
 spec/spec_helper.rb:
   mock_with: ":rspec"
   coverage_report: true
-.gitpod.Dockerfile:
-  unmanaged: false
-.gitpod.yml:
-  unmanaged: false
-.github/workflows/auto_release.yml:
-  unmanaged: false
-.github/workflows/ci.yml:
-  unmanaged: false
-.github/workflows/nightly.yml:
-  unmanaged: false
-.github/workflows/release.yml:
-  unmanaged: false
-.travis.yml:
-  delete: true
+.gitignore
+  paths:
+    - "/spec/fixtures/litmus_inventory*.yaml"
+    - "/.bolt/"
+    - "/.litmus/"
+.pdkignore:
+  paths:
+    - "/spec/fixtures/litmus_inventory*.yaml"
+    - "/.bolt/"
+    - "/.litmus/"
