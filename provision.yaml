@@ -11,12 +11,20 @@
 # Fast single-container smoke test.
 default:
   provisioner: docker
+  docker_options:
+    # Allocate 2GB for /tmp to support OpenJDK downloads (~350MB each)
+    tmpfs:
+      - /tmp:size=2g,noexec,nosuid,nodev
   images:
   - litmusimage/ubuntu:22.04
 
 # All targets that can be run locally with docker (CI matrix, see .github/workflows/litmus.yml).
 docker:
   provisioner: docker
+  docker_options:
+    # Allocate 2GB for /tmp to support OpenJDK downloads (~350MB each)
+    tmpfs:
+      - /tmp:size=2g,noexec,nosuid,nodev
   images:
   - litmusimage/ubuntu:20.04
   - litmusimage/ubuntu:22.04
@@ -26,28 +34,48 @@ docker:
 
 docker_debian:
   provisioner: docker
+  docker_options:
+    # Allocate 2GB for /tmp to support OpenJDK downloads (~350MB each)
+    tmpfs:
+      - /tmp:size=2g,noexec,nosuid,nodev
   images:
   - litmusimage/debian:11
 
 docker_ubuntu:
   provisioner: docker
+  docker_options:
+    # Allocate 2GB for /tmp to support OpenJDK downloads (~350MB each)
+    tmpfs:
+      - /tmp:size=2g,noexec,nosuid,nodev
   images:
   - litmusimage/ubuntu:20.04
   - litmusimage/ubuntu:22.04
 
 docker_el7:
   provisioner: docker
+  docker_options:
+    # Allocate 2GB for /tmp to support OpenJDK downloads (~350MB each)
+    tmpfs:
+      - /tmp:size=2g,noexec,nosuid,nodev
   images:
   - litmusimage/centos:7
 
 docker_el8:
   provisioner: docker
+  docker_options:
+    # Allocate 2GB for /tmp to support OpenJDK downloads (~350MB each)
+    tmpfs:
+      - /tmp:size=2g,noexec,nosuid,nodev
   images:
   - litmusimage/centos:stream8
 
 # Additional RedHat derivatives listed in metadata.json.
 docker_el_extended:
   provisioner: docker
+  docker_options:
+    # Allocate 2GB for /tmp to support OpenJDK downloads (~350MB each)
+    tmpfs:
+      - /tmp:size=2g,noexec,nosuid,nodev
   images:
   - litmusimage/rockylinux:8
   - litmusimage/almalinux:8
