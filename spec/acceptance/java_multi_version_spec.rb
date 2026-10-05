@@ -38,8 +38,8 @@ describe 'multiple java versions side by side' do
   context 'with java::adoptium' do
     before(:all) do
       # Cleanup previous runs and check disk space
-      shell('rm -rf /tmp/OpenJDK*.tar.gz* /tmp/*.pp 2>/dev/null || true')
-      shell('echo "Available space in /tmp:"; df -h /tmp')
+      run_shell('rm -rf /tmp/OpenJDK*.tar.gz* /tmp/*.pp 2>/dev/null || true')
+      run_shell('echo "Available space in /tmp:"; df -h /tmp')
       
       apply_manifest(adoptium_manifest, catch_failures: true) if archive_install_supported?
     end
@@ -70,8 +70,8 @@ describe 'multiple java versions side by side' do
   context 'with java::sap' do
     before(:all) do
       # Cleanup previous runs and check disk space
-      shell('rm -rf /tmp/sapmachine*.tar.gz* /tmp/*.pp 2>/dev/null || true')
-      shell('echo "Available space in /tmp:"; df -h /tmp')
+      run_shell('rm -rf /tmp/sapmachine*.tar.gz* /tmp/*.pp 2>/dev/null || true')
+      run_shell('echo "Available space in /tmp:"; df -h /tmp')
       
       apply_manifest(sap_manifest, catch_failures: true) if archive_install_supported?
     end
