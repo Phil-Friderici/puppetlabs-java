@@ -87,7 +87,7 @@ describe 'java_version' do
       let(:facts) { { kernel: 'Darwin' } }
 
       it do
-        expect(Facter::Core::Execution).to receive(:execute).with('/usr/libexec/java_home --failfast', { on_fail: false }).at_least(1).and_return(false)
+        allow(Facter::Core::Execution).to receive(:execute).with('/usr/libexec/java_home --failfast', { on_fail: false }).at_least(1).and_return(false)
         expect(Facter.value(:java_version)).to be_nil
       end
     end
@@ -101,7 +101,7 @@ describe 'java_version' do
       let(:facts) { { operatingsystem: 'MyOS' } }
 
       it do
-        expect(Facter::Core::Execution).to receive(:which).at_least(1).with('java').and_return(false)
+        allow(Facter::Core::Execution).to receive(:which).at_least(1).with('java').and_return(false)
         expect(Facter.value(:java_version)).to be_nil
       end
     end

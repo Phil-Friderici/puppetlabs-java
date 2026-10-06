@@ -11,7 +11,7 @@
 # Requires: `manifest`
 RSpec.shared_examples 'an idempotent manifest' do
   it 'applies without errors and is idempotent' do
-    idempotent_apply(manifest)
+    expect { idempotent_apply(manifest) }.not_to raise_error
   end
 end
 

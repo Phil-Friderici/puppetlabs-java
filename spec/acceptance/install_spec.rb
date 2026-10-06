@@ -213,39 +213,36 @@ MANIFEST
 describe 'installing' do
   context 'when installing java jre' do
     it 'installs jre' do
-      idempotent_apply(java_class_jre)
+      expect { idempotent_apply(java_class_jre) }.not_to raise_error
     end
   end
 
   context 'when installing java jdk' do
     it 'installs jdk' do
-      idempotent_apply(java_class)
+      expect { idempotent_apply(java_class) }.not_to raise_error
     end
   end
 
   context 'when with failure cases' do
     it 'fails to install java with a blank version' do
-      apply_manifest(blank_version, expect_failures: true)
+      expect { apply_manifest(blank_version, expect_failures: true) }.not_to raise_error
     end
 
     it 'fails to install java with an incorrect distribution' do
-      apply_manifest(incorrect_distro, expect_failures: true)
+      expect { apply_manifest(incorrect_distro, expect_failures: true) }.not_to raise_error
     end
 
     it 'fails to install java with a blank distribution' do
-      apply_manifest(blank_distro, expect_failures: true)
+      expect { apply_manifest(blank_distro, expect_failures: true) }.not_to raise_error
     end
 
     it 'fails to install java with an incorrect package' do
-      apply_manifest(incorrect_package, expect_failures: true)
+      expect { apply_manifest(incorrect_package, expect_failures: true) }.not_to raise_error
     end
 
     it 'fails on debian or RHEL when passed fake java_alternative and path' do
-      if os[:family] == 'sles'
-        apply_manifest(bogus_alternative, catch_failures: true)
-      else
-        apply_manifest(bogus_alternative, expect_failures: true)
-      end
+      options = (os[:family] == 'sles') ? { catch_failures: true } : { expect_failures: true }
+      expect { apply_manifest(bogus_alternative, **options) }.not_to raise_error
     end
   end
 
@@ -258,11 +255,15 @@ describe 'installing' do
       (os[:family] == 'redhat') ? '-amd64' : ''
     end
 
-    it 'installs oracle jdk and jre' do
+    it 'installs oracle jdk' do
       idempotent_apply(install_oracle_jdk_jre)
       jdk_result = shell("test ! -e #{install_path}/jdk1.#{oracle_version_major}.0_#{oracle_version_minor}#{version_suffix}/jre/lib/security/local_policy.jar")
-      jre_result = shell("test ! -e #{install_path}/jre1.#{oracle_version_major}.0_#{oracle_version_minor}#{version_suffix}/lib/security/local_policy.jar")
       expect(jdk_result.exit_code).to eq(0)
+    end
+
+    it 'installs oracle jre' do
+      idempotent_apply(install_oracle_jdk_jre)
+      jre_result = shell("test ! -e #{install_path}/jre1.#{oracle_version_major}.0_#{oracle_version_minor}#{version_suffix}/lib/security/local_policy.jar")
       expect(jre_result.exit_code).to eq(0)
     end
 
@@ -289,7 +290,7 @@ describe 'installing' do
     end
 
     it 'installs adopt jdk and jre' do
-      idempotent_apply(install_adopt_jdk_jre)
+      expect { idempotent_apply(install_adopt_jdk_jre) }.not_to raise_error
     end
   end
 
@@ -303,7 +304,7 @@ describe 'installing' do
     end
 
     it 'installs adopt jdk and jre' do
-      idempotent_apply(install_adoptium_jdk)
+      expect { idempotent_apply(install_adoptium_jdk) }.not_to raise_error
     end
   end
 
@@ -313,7 +314,7 @@ describe 'installing' do
     end
 
     it 'installs adopt jdk and jre' do
-      idempotent_apply(install_sap_jdk_jre)
+      expect { idempotent_apply(install_sap_jdk_jre) }.not_to raise_error
     end
   end
 end

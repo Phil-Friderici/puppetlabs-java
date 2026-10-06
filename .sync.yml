@@ -11,7 +11,7 @@
 spec/spec_helper.rb:
   mock_with: ":rspec"
   coverage_report: true
-.gitignore
+.gitignore:
   paths:
     - "/spec/fixtures/litmus_inventory*.yaml"
     - "/.bolt/"
