@@ -29,26 +29,33 @@ describe 'java_default_home' do
 
   context 'when java found in PATH' do
     context 'when java is in /usr/lib/jvm/java-7-openjdk-amd64/jre/bin/java' do
-      it do
-        unlink_and_delete('./java_test')
-        symlink_and_test(java_7_path, java_7_home)
-        unlink_and_delete('./java_test')
+      it 'symlinks java 7 correctly' do
+        expect {
+          unlink_and_delete('./java_test')
+          symlink_and_test(java_7_path, java_7_home)
+          unlink_and_delete('./java_test')
+        }.not_to raise_error
       end
     end
 
     context 'when java is in /usr/lib/jvm/oracle-java8-jre-amd64/bin/java' do
-      it do
-        unlink_and_delete('./java_test')
-        symlink_and_test(java_8_path, java_8_home)
-        unlink_and_delete('./java_test')
+      it 'symlinks java 8 correctly' do
+        expect {
+          unlink_and_delete('./java_test')
+          symlink_and_test(java_8_path, java_8_home)
+          unlink_and_delete('./java_test')
+        }.not_to raise_error
       end
     end
   end
 
   context 'when java not present, return nil' do
-    it do
+    before(:each) do
       allow(Facter::Core::Execution).to receive(:execute) # Catch all other calls
-      expect(Facter::Core::Execution).to receive(:which).with('java').at_least(1).and_return(nil)
+      allow(Facter::Core::Execution).to receive(:which).with('java').at_least(1).and_return(nil)
+    end
+
+    it do
       expect(Facter.value(:java_default_home)).to be_nil
     end
   end

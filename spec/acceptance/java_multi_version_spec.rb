@@ -40,7 +40,7 @@ describe 'multiple java versions side by side' do
       # Cleanup previous runs and check disk space
       run_shell('rm -rf /tmp/OpenJDK*.tar.gz* /tmp/*.pp 2>/dev/null || true')
       run_shell('echo "Available space in /tmp:"; df -h /tmp')
-      
+
       apply_manifest(adoptium_manifest, catch_failures: true) if archive_install_supported?
     end
 
@@ -72,7 +72,7 @@ describe 'multiple java versions side by side' do
       # Cleanup previous runs and check disk space
       run_shell('rm -rf /tmp/sapmachine*.tar.gz* /tmp/*.pp 2>/dev/null || true')
       run_shell('echo "Available space in /tmp:"; df -h /tmp')
-      
+
       apply_manifest(sap_manifest, catch_failures: true) if archive_install_supported?
     end
 

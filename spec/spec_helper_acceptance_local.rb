@@ -10,7 +10,7 @@ class LitmusHelper
   include PuppetLitmus
 end
 
-Dir[File.join(__dir__, 'support', 'acceptance', '**', '*.rb')].sort.each { |helper| require helper }
+Dir[File.join(__dir__, 'support', 'acceptance', '**', '*.rb')].each { |helper| require helper }
 
 RSpec.configure do |c|
   c.include JavaAcceptanceHelpers
