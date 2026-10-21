@@ -1,23 +1,20 @@
 # frozen_string_literal: true
 
-# Defaults to puppetcore regardless of PUPPET_FORGE_TOKEN/network state.
+# Uses public gems when puppetcore credentials are unavailable.
 # Opt out: bundle config set gemsource.public true
 gemsource_default = ENV['GEM_SOURCE'] || 'https://rubygems.org'
 gemsource_public_opt_out = Bundler.settings['gemsource.public']
-gemsource_puppetcore = if gemsource_public_opt_out
+gemsource_credentials = ENV['PUPPET_FORGE_TOKEN'] || ENV['BUNDLE_RUBYGEMS___PUPPETCORE__PUPPET__COM']
+gemsource_airgapped = Bundler.settings['gemsource.airgapped']
+gemsource_puppetcore = if gemsource_public_opt_out || (!gemsource_credentials && !gemsource_airgapped)
   gemsource_default
 else
   'https://rubygems-puppetcore.puppet.com'
 end
 source gemsource_default
 
-unless ENV['PUPPET_FORGE_TOKEN'] || ENV['BUNDLE_RUBYGEMS___PUPPETCORE__PUPPET__COM'] ||
-       Bundler.settings['gemsource.airgapped'] || gemsource_public_opt_out
-  Bundler.ui.warn <<~WARNING
-    No puppetcore credentials detected.
-    On an airgapped install, run `bundle config set gemsource.airgapped true` to suppress this warning.
-    To use public gems instead, run `bundle config set gemsource.public true`.
-  WARNING
+unless gemsource_credentials || gemsource_airgapped || gemsource_public_opt_out
+  Bundler.ui.warn 'No puppetcore credentials detected; using public gems.'
 end
 
 def location_for(place_or_constraint, fake_constraint = nil, opts = {})
